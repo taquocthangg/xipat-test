@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JS Dropdown</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f9f9f9;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      min-width: 200px;
+    }
+
+    .dropdown-button {
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-list {
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      right: 0;
+      border: 1px solid #ccc;
+      background: white;
+      list-style: none;
+      margin: 0;
+      padding: 5px 0;
+      border-radius: 4px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1000;
+    }
+
+    .dropdown.open .dropdown-list {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+      background: #f0f0f0;
+      outline: none;
+    }
+
+    .dropdown-item[aria-selected="true"] {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dropdown" id="dropdown" tabindex="0">
+  <div class="dropdown-button" id="dropdownButton" aria-haspopup="listbox" aria-expanded="false">
+    Chọn Option
+  </div>
+  <ul class="dropdown-list" id="dropdownList" role="listbox">
+    <li class="dropdown-item" tabindex="-1" role="option">Option 1</li>
+    <li class="dropdown-item" tabindex="-1" role="option">Option 2</li>
+    <li class="dropdown-item" tabindex="-1" role="option">Option 3</li>
+  </ul>
+</div>
+
+<script>
+  const dropdown = document.getElementById('dropdown');
+  const button = document.getElementById('dropdownButton');
+  const list = document.getElementById('dropdownList');
+  const items = list.querySelectorAll('.dropdown-item');
+  let open = false;
+  let focusedIndex = -1;
+
+  function toggleDropdown(show) {
+    open = show ?? !open;
+    dropdown.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', open);
+    if (open) {
+      focusedIndex = 0;
+      items[focusedIndex].focus();
+    }
+  }
+
+  button.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+
+  items.forEach((item, index) => {
+    item.addEventListener('click', () => {
+      button.textContent = item.textContent;
+      toggleDropdown(false);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target)) {
+      toggleDropdown(false);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!open) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusedIndex = (focusedIndex + 1) % items.length;
+      items[focusedIndex].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusedIndex = (focusedIndex - 1 + items.length) % items.length;
+      items[focusedIndex].focus();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      button.textContent = items[focusedIndex].textContent;
+      toggleDropdown(false);
+    } else if (e.key === 'Escape') {
+      toggleDropdown(false);
+      button.focus();
+    }
+  });
+</script>
+
+</body>
+</html>
